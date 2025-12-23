@@ -3,12 +3,12 @@
 #include <trexio.h>
 
 int main(void){
-	//////////////////////////////////////////////////TREXIO VARIABLES INITIALIZATION///////////////////////////////////////////
+//////////////////////////////////////////////////////////TREXIO VARIABLES INITIALIZATION///////////////////////////////
 	
 	trexio_exit_code rc; //This variable stores a message about the status of the trexio.h function. If is succesfully called and ended it stores a 'TREXIO SUCCESS', otherwise it sotres the error arised
 	trexio_t* trexio_file=trexio_open("h2o.h5", 'r', TREXIO_AUTO, &rc);
 
-        /////////////////////////////////////////VARIABLES DECLARATION PART///////////////////////////////////////////////////////
+/////////////////////////////////////////VARIABLES DECLARATION PART/////////////////////////////////////////////////////
 	
 	double Vnn; //This variable stores the nuclear repulsion
 	int num_elec; //Variable devoted to store the number of electron
@@ -45,6 +45,8 @@ int main(void){
 		exit(1);
 	}
 	double* two_el_int = malloc(integrals*sizeof(double)); //Is a pointer: it stores the memory reference that will host the 2e integrals values
+	double E_coul=0; //This variable is designed to cumulate the Coulomb repulsion contributions, hence integrals whose indexes are i=j/k=l (ii|jj)
+	double E_xc=0; //This variable yield the exchange energy. Its contributions are the integrals whose indexes satisfy i=l/j=k (ij|ji)
 	//memory allocation success verification
 	if ( two_el_int == NULL ){
 		printf("Memory allocation went wrong");
@@ -55,24 +57,26 @@ int main(void){
 	//i=indexes[5*4+2];
 	energy=Vnn; //is summed one time onlyi
 	printf("Nuclear repulsion energy:%f", energy);
-	//Follows the calculation of one electron integral sum
+
+	//Follows the calculation of one electron integral sum: The integrals store by the read of one electrons integrals return the integrals of all orbitals both occupied and virtual, thus a first filter should be set. Secondly, among the occupied orbitals only the diagonal terms (i.e., hii)n contributes to the 1-el energy. Storing the amount of mo was required to provide the right size to the array that stores the one-electron integrals, but the sum (i.e., the loop) doesn't run over the whole set of MOs
+	
 	int one_el_sum=0;
-	for (int n=0; n<=mo; n++){
-		for (int m=0; m<=mo; m++){ 
-		one_el_sum+=2*Ven[n][m];
-		}
+	for (int n=0; n<=num_elec; n++){	
+		one_el_sum+=2*Ven[n][n];
 	}
+
 	energy+=one_el_sum;
 	printf("Nuclear repulsion energy:%f", energy);
 	double two_el_sum=0; //Stores the sum of the two electron integrals.
-	for (int n=0; n<=integrals; n++){
+	for (int n=0; n<=num_elec; n++){
 		i = indexes[n*4+0];
 		j = indexes[n*4+1];
 		k = indexes[n*4+2];
 		l = indexes[n*4+3];
-		printf("Indici:%d %d %d %d \n", i, j, k, l);
-		two_el_sum+=two_el_int[n];
-		//printf("Funziona:%d \n", n);	
+		if (i==k && j==l){
+			printf("Indici:%d %d %d %d \n", i, j, k, l);
+			two_el_sum+=(2*two_el_int[i][j][k][l]-two_el_int[i][k][j][l]);
+		}
 	}
 	energy+=two_el_sum;
 	printf("Total energy of water:%f ",energy);
