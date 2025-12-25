@@ -6,7 +6,7 @@ int main(void){
 	//////////////////////////////////// TREXIO VARIABLES INITIALIZATION ///////////////////////////////
 	
 	trexio_exit_code rc; //This variable stores a message about the status of the trexio.h function. If is succesfully called and ended it stores a 'TREXIO SUCCESS', otherwise it sotres the error arised
-	trexio_t* trexio_file=trexio_open("h2o.h5", 'r', TREXIO_AUTO, &rc);
+	trexio_t* trexio_file=trexio_open("c2h4.h5", 'r', TREXIO_AUTO, &rc);
 
 	///////////////////////////////////// VARIABLES DECLARATION PART /////////////////////////////////////
 	
@@ -79,7 +79,12 @@ int main(void){
 		exit(1);
 	}
 	//- Finally reading the two-electrons integrals. Bear in mind 'indexes' and 'two_el_int' are pointers
+	
 	rc = trexio_read_mo_2e_int_eri(trexio_file, 0, &integrals, indexes, two_el_int);
+	if ( rc != TREXIO_SUCCESS){
+		printf ("Error reading the 2-electron orbitals: %s\n", trexio_string_of_error(rc));
+		exit(1);
+	}
 	
 	//////////////////////////////////////// ENERGY CALCULATION //////////////////////////////////
 	
@@ -104,24 +109,43 @@ int main(void){
 		       //satisfy i=l/j=k <ij|ji>
 	int i, j, k, l; //2-electrons integral indexes
 	double two_el_en=0; //Stores the sum of the two electron integrals.
+	int nJ=0, nK=0;
+	
+	
+	
 	for (int n=0; n<integrals; n++){
 		i = indexes[n*4+0];
 		j = indexes[n*4+1];
 		k = indexes[n*4+2];
 		l = indexes[n*4+3];
 		if (i<num_elec && j<num_elec && k<num_elec && l<num_elec){
+			printf("Indexes:%d %d %d %d \n", i, j, k, l);
 			if (i==k && j==l){
-				printf("Indexes:%d %d %d %d \n", i, j, k, l);
-				E_coul+=4*two_el_int[n];
-				printf("Coulomb energy: %f \n", E_coul);
+				nJ++;
+				printf("COULOMB YES");
+				if (i==j){
+					nK++;
+					//printf("Indexes:%d %d %d %d \n", i, j, k, l);
+					E_coul+=two_el_int[n];
+					printf("Coulomb energy: %f \n", E_coul);
+				}
+				else{
+					//printf("Indexes:%d %d %d %d \n", i, j, k, l);
+					E_coul+=4*two_el_int[n];
+					printf("Coulomb energy: %f \n", E_coul);
+				}
 			}
-			if (i==l && j==k) {
-				printf("Indexes:%d %d %d %d \n", i, j, k, l);
+			else if ((i==l && j==k) || (i==j && k==l)) {
+				nK++;
+				printf("EXCHANGE YES");
+				//printf("Indexes:%d %d %d %d \n", i, j, k, l);
 				E_xc-=2*two_el_int[n];
 				printf("Exchange energy: %f \n", E_xc);
 			}
 		}
 	}
+	printf("Amount of Coulomb contributions: %d \n", nJ);
+	printf("Amount of Exchange contributions: %d \n", nK);
 	two_el_en=E_coul+E_xc; //Here the contributions are summed because 'E_xc' already carries the minus sign
 	printf("Two electron_energy: %f \n", two_el_en);			     
 	energy+=two_el_en;
