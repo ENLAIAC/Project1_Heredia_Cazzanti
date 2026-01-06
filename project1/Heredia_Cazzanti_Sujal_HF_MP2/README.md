@@ -9,4 +9,5 @@ The current implementation focuses on the Hartree-Fock self-consistent field (SC
 The repository is organized as follows:
 
 **`HF/`**: Contains the source code for the Hartree-Fock calculation (e.g., `HF.c`).
+
 **`MP2/`**: Contains the source code for the MP2 energy correction.
