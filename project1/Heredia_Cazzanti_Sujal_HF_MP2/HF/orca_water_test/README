@@ -1,0 +1,3 @@
+This file is devoted to a third check of energies. An ORCA SP calculation was performed to assess, term by term, the 
+coherence of the results. Note that the results slightly differ due to the different procedure. ORCA values may change
+from one basis set to another, while TREXIO uses its values stored in the files.
