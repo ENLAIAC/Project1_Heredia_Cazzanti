@@ -28,12 +28,13 @@ This installs the library to `/usr/local/lib` and headers to `/usr/local/include
 
 ## 2. Compilation
 
-Navigate to the Hartree-Fock source directory and compile the code using `gcc`. You must link the TREXIO library.
+First navigate to the Hartree-Fock source directory and compile the code using `gcc`. You must link the TREXIO library.
 
 ```bash
 cd Heredia_Cazzanti_Sujal_HF_MP2/HF
 gcc -I/usr/local/include -L/usr/local/lib -ltrexio HF.c -o hf_calc
 ```
+After the complilation of HF is done, navigate to MP2 source directory and complie the code using `gcc` and do not forget to link TREXIO library.
 
 ```bash
 cd Heredia_Cazzanti_Sujal_HF_MP2/MP2
