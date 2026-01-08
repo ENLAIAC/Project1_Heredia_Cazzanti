@@ -35,6 +35,11 @@ cd Heredia_Cazzanti_Sujal_HF_MP2/HF
 gcc -I/usr/local/include -L/usr/local/lib -ltrexio HF.c -o hf_calc
 ```
 
+```bash
+cd Heredia_Cazzanti_Sujal_HF_MP2/MP2
+gcc -I/usr/local/include -L/usr/local/lib -ltrexio MP2.c -o mp2_calc
+```
+
 **Note:** If you encounter an error about loading shared libraries, add the library path to your environment: `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib`
 
 
@@ -52,7 +57,7 @@ The program currently expects the input file (e.g., `c2h4.h5`) to be present in 
   ./hf_calc
   ```
 
-For the `c2h4.h5` (Ethylene) molecule, the program will output:
+For the `c2h4.h5` (Ethylene) molecule, the HF code will output:
 
 * Nuclear repulsion energy
 
@@ -62,4 +67,5 @@ For the `c2h4.h5` (Ethylene) molecule, the program will output:
 
 * Final Total Energy
 
+and MP2 code will output correlation energy (MP2 correction) that could be added to the HF energy.
 
